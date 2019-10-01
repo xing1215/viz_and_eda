@@ -77,6 +77,91 @@ ggplot(weather_df, aes(x = date, y = tmax, color = name)) +
 ```
 
 
+The previous notes were lost, starts from here!
+
+## Some extra stuff
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = date, y = tmax, color = name)) + 
+  geom_smooth(size = 2, se = FALSE)
+```
+you can pick whatever you think that is useful to show up.
+
+2d density
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax, color = name)) + 
+  geom_hex() +
+  facet_grid(~name)
+```
+within this area, how much data points exist in there
+
+
+## more kinds of plots!!
+
+understand the distribution of a single variable
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmax, color = name)) +
+  geom_histogram()
+```
+
+we don't like those bars stack with each other, so we separate those bars
+
+Also, the color is outside the bar and we don't like that, then we use
+`fill = name`
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmax, fill = name)) +
+  geom_histogram(position = "dodge")
+```
+
+or we have 3 separate panel
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmax, fill = name)) +
+  geom_histogram() +
+  facet_grid(~name)
+```
+
+now let's try density plots
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmax, fill = name)) +
+  geom_density(alpha = .3)
+```
+
+boxplots...
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = name, y = tmax)) +
+  geom_boxplot()
+```
+
+violin plot...
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = name, y = tmax)) +
+  geom_violin()
+```
+
+ridge plots
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmax, y = name)) +
+  geom_density_ridges()
+```
+
+
+
 
 
 
