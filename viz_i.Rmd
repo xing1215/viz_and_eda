@@ -171,6 +171,8 @@ ggsave("ggplot_temp_ridge.pdf", ggp_ridge_temp)
 ```
 
 
+## embedding
+the stuff about embedding the plots is on the website. Check the website.
 
 
 

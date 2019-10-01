@@ -276,3 +276,8 @@ ggsave("ggplot_temp_ridge.pdf", ggp_ridge_temp)
     ## Picking joint bandwidth of 1.84
 
     ## Warning: Removed 3 rows containing non-finite values (stat_density_ridges).
+
+## embedding
+
+the stuff about embedding the plots is on the website. Check the
+website.
