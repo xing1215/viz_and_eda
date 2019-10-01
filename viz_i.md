@@ -261,3 +261,18 @@ weather_df %>%
     ## Warning: Removed 3 rows containing non-finite values (stat_density_ridges).
 
 ![](viz_i_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+
+## saving a plot
+
+``` r
+ggp_ridge_temp = weather_df %>% ggplot(aes(x = tmax, y = name)) + 
+  geom_density_ridges()
+
+ggsave("ggplot_temp_ridge.pdf", ggp_ridge_temp)
+```
+
+    ## Saving 7 x 5 in image
+
+    ## Picking joint bandwidth of 1.84
+
+    ## Warning: Removed 3 rows containing non-finite values (stat_density_ridges).
