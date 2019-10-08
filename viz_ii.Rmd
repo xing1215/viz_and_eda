@@ -294,16 +294,3 @@ because we are calculating the mean of pn_day in `fct_reorder(outcome, pn_day)` 
 existing missing values make it not functioning. 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
