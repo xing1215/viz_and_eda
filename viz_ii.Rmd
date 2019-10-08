@@ -1,0 +1,145 @@
+---
+title: "'ggplot' 2"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(ggridges)
+```
+
+
+## create the weather data
+
+```{r load_data, cache=TRUE}
+weather_df = 
+  rnoaa::meteo_pull_monitors(c("USW00094728", "USC00519397", "USS0023B17S"),
+                      var = c("PRCP", "TMIN", "TMAX"), 
+                      date_min = "2017-01-01",
+                      date_max = "2017-12-31") %>%
+  mutate(
+    name = recode(id, USW00094728 = "CentralPark_NY", 
+                      USC00519397 = "Waikiki_HA",
+                      USS0023B17S = "Waterhole_WA"),
+    tmin = tmin / 10,
+    tmax = tmax / 10) %>%
+  select(name, id, everything())
+```
+
+
+## making new plots
+
+start with old plots
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax, color = name)) +
+  geom_point(alpha = .5)
+```
+
+add labels: 
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax, color = name)) +
+  geom_point(alpha = .5) +
+  labs(
+    title = "Temperature plot",
+    x = "Minimum Temp(C)",
+    y = "Maximum Temp (C)",
+    caption = "Data from NOAA via rnoaa package"
+  )
+```
+
+x axis tck marks etc
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax, color = name)) +
+  geom_point(alpha = .5) +
+  labs(
+    title = "Temperature plot",
+    x = "Minimum Temp(C)",
+    y = "Maximum Temp (C)",
+    caption = "Data from NOAA via rnoaa package"
+  ) +
+  scale_x_continuous(
+    breaks = c(-15, -5, 20), 
+    labels = c("-15C", "-5C", "20C")
+  ) +
+  scale_y_continuous(
+    trans = "sqrt"
+  )
+# scale_y_sqrt() has the same function
+```
+
+A `sqrt` transformation is fine here. But some of the negative values of y are dropped from
+plotting because the you cannot square root a negative value. 
+
+
+## colors
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax, color = name)) +
+  geom_point(alpha = .5) +
+  labs(
+    title = "Temperature plot",
+    x = "Minimum Temp(C)",
+    y = "Maximum Temp (C)",
+    caption = "Data from NOAA via rnoaa package"
+  ) + 
+  scale_color_hue(
+    name = "Weather Station", 
+    h = c(100, 300)
+  )
+```
+
+use viridis packages
+
+```{r}
+ggp_base = 
+  weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax, color = name)) +
+  geom_point(alpha = .5) +
+  labs(
+    title = "Temperature plot",
+    x = "Minimum Temp(C)",
+    y = "Maximum Temp (C)",
+    caption = "Data from NOAA via rnoaa package"
+  ) + 
+  viridis::scale_color_viridis(
+    name = "Location", 
+    discrete = TRUE
+  )
+
+ggp_base
+```
+
+
+## themes
+
+```{r}
+ggp_base + 
+  theme(legend.position = "bottom") +
+  theme_bw()
+```
+
+at here, the order of command matter. we do legend first, then do `theme_minimal`, it gonna
+remove everything. 
+
+`theme_bw()` can change change the color of the backgroud. grey background and white line to 
+white background and black lines.
+`theme_minimal()` remove the line frame of the plots
+`theme_classic` gives a classical plot
+
+
+
+
+
+
+
+
+
