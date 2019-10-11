@@ -42,8 +42,185 @@ weather_df =
     tmin = tmin / 10,
     tmax = tmax / 10,
     month = lubridate::floor_date(date, unit = "month")) %>%
-  select(name, id, everything())
+  select(name, id, date, month, everything())
 ```
+
+
+## `group_by` and counting
+
+```{r}
+weather_df %>% 
+  group_by(name, month)
+```
+
+`group_by` is similar to other function. When we `group_by` a dataset, we haven't formally 
+change the original dataset yet. We have to say the change manually if you want. 
+
+```{r}
+weather_df %>% 
+  group_by(name) %>% 
+  summarize(n_obs = n())
+
+weather_df %>% 
+  group_by(month) %>% 
+  summarize(
+    n_obs = n(),
+    n_unique = n_distinct(date))
+```
+
+`count()` has the same function of `grou_by`+`summarize`
+
+```{r}
+weather_df %>% 
+  count(name, month)
+```
+
+The third way to get the same result. But don't use this. Because the result created is not a 
+dataframe. 
+
+```{r}
+weather_df %>% 
+  pull(name) %>% 
+  table()
+```
+
+
+let's make a nice table
+
+```{r}
+weather_df %>% 
+  count(name) %>% 
+  knitr::kable()
+```
+
+
+## 2x2 tables
+
+a digression..
+
+complex way
+
+```{r}
+weather_df %>% 
+  filter(name != "Waikiki_HA") %>% 
+  mutate(
+    cold = case_when(
+      tmax <  5 ~ "cold",
+      tmax >= 5 ~ "not cold",
+      TRUE      ~ ""
+    )
+  ) %>% 
+  group_by(name, cold) %>% 
+  count() %>% 
+  pivot_wider(
+    names_from = cold,
+    values_from = n
+  )
+```
+
+easier way by using janitor...
+
+```{r}
+weather_df %>% 
+  filter(name != "Waikiki_HA") %>% 
+  mutate(
+    cold = case_when(
+      tmax <  5 ~ "cold",
+      tmax >= 5 ~ "not cold",
+      TRUE      ~ ""
+    )
+  ) %>% 
+  janitor::tabyl(name, cold)
+```
+
+
+## general summaries
+
+```{r}
+weather_df %>%
+  group_by(name, month) %>%
+  summarize(
+    n = n(),
+    mean_tmax = mean(tmax, na.rm = TRUE),
+    sd_tmax = sd(tmax, na.rm = TRUE),
+    median_prcp = median(prcp, na.rm = TRUE)
+  ) %>% 
+  ggplot(aes(x = month, y = mean_tmax, color = name)) + 
+    geom_point() + geom_line()
+```
+
+we have NAs in our data, and this gonna influence the calculations of mean, median, and so on.
+Thus, `na.rm = TRUE` can help us solve this problem. 
+
+
+```{r}
+weather_df %>%
+  group_by(name, month) %>%
+  summarize(
+    n = n(),
+    mean_tmax = mean(tmax, na.rm = TRUE)
+  ) %>% 
+  pivot_wider(
+    names_from = name,
+    values_from = mean_tmax
+  ) %>% 
+  knitr::kable(digits = 1)
+```
+
+pivot_longer is good for analysis, BUT not good for showing the results to sombody else. 
+
+
+## grouped mutates
+
+```{r}
+weather_df %>% 
+  group_by(name) %>% 
+  ungroup()
+```
+
+```{r}
+weather_df %>% 
+  group_by(name) %>% 
+  mutate(
+    mean_tmax = mean(tmax, na.rm = TRUE),
+    centered_tmax = tmax - mean_tmax
+  ) %>% 
+  ggplot(aes(x = date, y = centered_tmax, color = name)) + 
+    geom_point()
+```
+
+anything we group here is gonna be group specific. mean_tmax here is not calculating the mean 
+of tmax of the whole dataset. Instead, it calculates the mean based on name. 
+
+
+## window functions in grouped mutates...
+
+```{r}
+weather_df %>% 
+  group_by(name, month) %>% 
+  mutate(
+    tmax_rank = min_rank(tmax)
+  ) %>% 
+  filter(tmax_rank == 1) %>% view()
+```
+
+other window functions: lags and leads
+
+```{r}
+weather_df %>%
+  group_by(name) %>%
+  mutate(
+    lagged_tmax = lag(tmax),
+    one_day_tmax_change = tmax - lagged_tmax
+  ) %>% 
+  summarize(
+    sd_daily_change = sd(one_day_tmax_change, na.rm = TRUE))
+```
+
+By using the lag function, we could calculate the standard deviation of tmax change for each day. 
+
+
+
 
 
 
